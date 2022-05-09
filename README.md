@@ -65,7 +65,11 @@ services:
       - /data/redmine/web/log:/var/log/nginx
 ```
 
-
+Before executing the docker-compose.yaml file, we need to setup the volume mount point.
+Create the volume mount point - the script assume to have `/data` directory on the root, if it does not exists it will be created by the `setup` script.
+```
+  sudo ./setup
+```
 
 
 
