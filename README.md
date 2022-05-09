@@ -71,6 +71,16 @@ Create the volume mount point - the script assume to have `/data` directory on t
   sudo ./setup
 ```
 
+Start the application service using docker-compose:
+```
+  docker-compose up -d
+```
 
+Verify that the applicaiton service is up and running:
+```
+  docker ps
+```
+![Screen Shot 2022-05-07 at 4 09 46 PM](https://user-images.githubusercontent.com/35251635/167343745-40aff1e3-5b51-43d3-b254-c573b474ff03.png)
 
+Access the Redmine appication using localhost and the port 8081 that we have expsoed in the docker-compose.yaml file
 
