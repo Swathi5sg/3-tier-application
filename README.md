@@ -5,65 +5,63 @@ Here we are using docker-compose to deploy all the 3 applications.
 
 This a docker-compose.yaml file
 
-Creating docker-compose.yml
-version: '2'
+version: "3"
 networks:
   net:
-     driver: bridge
-services:
-  php:
-     networks:
-       - net
-     image: phpmyadmin/phpmyadmin
-     deploy:
+    driver: bridge  
+services:  
+  db_server:
+    restart: on-failure
+    image: f2hex/postgres
+    container_name: redmine-db_server
+    deploy:
        resources:
-         limits:
-           cpus: '0.5'
-           memory: 50M
-     container_name: php
-     restart: on-failure
-     links:
-       - mysql:db
-     depends_on:
-       - mysql
-
-  mysql:
-    networks:
-      - net
-    image: k0st/alpine-mariadb
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 50M
-    container_name: mysql
-    restart: on-failure
-    volumes:
-      - ./data/mysql:/var/lib/mysql
+          limits:
+             cpus: '1'
+             memory: 256M
     environment:
-      - MYSQL_DATABASE=mydb
-      - MYSQL_USER=myuser
-      - MYSQL_PASSWORD=mypass
-
-  nginx:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
     networks:
       - net
-    image: nginx:stable-alpine
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 50M
-    container_name: nginx
-    restart: on-failure
-    ports:
-      - "81:80"
     volumes:
-      - ./nginx/log:/var/log/nginx
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - php
+      - /data/redmine/db:/var/lib/postgresql/data
+   
 
+  app_server:
+    restart: on-failure
+    image: redmine
+    container_name: redmine-app_server
+    deploy:
+       resources:
+          limits:
+             cpus: '1'
+             memory: 256M
+    ports:
+      - "8081:3000"
+    networks:
+      - net
+    volumes:
+      - /data/redmine/app/files:/usr/src/redmine/files
+    
+
+  web_server:
+    restart: on-failure
+    image: nginx
+    container_name: redmine-web_server
+    deploy:
+       resources:
+          limits:
+             cpus: '1'
+             memory: 256M
+    ports:
+      - "8000:80"
+    networks:
+      - net
+    volumes:
+      - /data/redmine/web/log:/var/log/nginx
 
 
 
