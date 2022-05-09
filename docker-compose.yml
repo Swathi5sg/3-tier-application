@@ -3,53 +3,59 @@ networks:
   net:
     driver: bridge  
 services:  
-  db_server:
+  postgres:
+    networks:
+      - net
     restart: on-failure
     image: f2hex/postgres
-    container_name: redmine-db_server
+    container_name: postgres
     deploy:
        resources:
           limits:
              cpus: '1'
              memory: 256M
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - "5432:5432"
-    networks:
-      - net
+      - POSTGRES_USER=redmine
+      - POSTGRES_PASSWORD=secret
     volumes:
       - /data/redmine/db:/var/lib/postgresql/data
    
 
-  app_server:
+  redmine:
+    networks:
+      - net
     restart: on-failure
     image: redmine
-    container_name: redmine-app_server
+    container_name: redmine
     deploy:
        resources:
           limits:
              cpus: '1'
              memory: 256M
-    networks:
-      - net
+    links:
+      - postgres:db
     volumes:
       - /data/redmine/app/files:/usr/src/redmine/files
+    depends_on:
+      - postgres 
     
 
-  web_server:
+  nginx:
+    networks:
+      - net
     restart: on-failure
     image: nginx
-    container_name: redmine-web_server
+    container_name: nginx
     deploy:
        resources:
           limits:
              cpus: '1'
              memory: 256M
     ports:
-      - "80:443"
-    networks:
-      - net
+      - "81:80"
     volumes:
       - /data/redmine/web/log:/var/log/nginx
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro 
+    depends_on:
+      - redmine
+
