@@ -3,7 +3,7 @@ This is a 3-tier application example which involves applications like postgres a
 
 Here we are using docker-compose to deploy all the 3 applications.
 
-This a docker-compose.yaml file
+This is a docker-compose.yaml file
 
 ```
 version: "3"
